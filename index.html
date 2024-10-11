@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" id="inp1">
+    <input type="text" id="inp2">
+    <select name="" id="tata">
+        <option value="+" id="somme">+</option> 
+        <option value="/" id="drb">*</option>
+        <option value="-" id="mois">-</option>
+        <option value="*" id="9isma">/</option>
+    </select>
+    <button onclick="hsb()">hsab</button>
+    <div id="div1"></div>
+    <script>
+       function hsb(){
+        var inp1 = parseFloat(document.getElementById("inp1").value);
+        var inp2 = parseFloat(document.getElementById("inp2").value);
+            var tata = document.getElementById("tata").value
+            let rus
+            switch(tata){
+                case "+" : 
+                    rus = inp1 + inp2
+                    break;
+                case "*" : 
+                    rus = inp1 * inp2
+                break;
+                case "/" : 
+                    rus = inp1 / inp2
+                break;
+                case "-" : 
+                    rus = inp1 - inp2
+                break;
+            }
+            document.getElementById("div1").innerHTML = rus
+
+       }
+    </script>
+</body>
+</html>

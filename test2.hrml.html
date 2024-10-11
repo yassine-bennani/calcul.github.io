@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: blueviolet;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 800px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        header {
+            background-color: #3f0285;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        section {
+            padding: 20px;
+        }
+
+        input[type="text"] {
+            display: block;
+            width: calc(100% - 20px);
+            margin: 10px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .total-section p {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .total-section input {
+            width: auto;
+            margin-left: 10px;
+            padding: 5px;
+        }
+
+        button {
+            display: block;
+            width: calc(100% - 20px);
+            margin: 10px auto;
+            padding: 10px;
+            background-color: #3f0285;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        button:hover {
+            background-color: #290259;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3f0285;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Grud</h1>
+        </header>
+        <section>
+            <input onkeyup="Total()" type="text" id="title" placeholder="Title">
+            <input onkeyup="Total()" type="text" id="price" placeholder="Price">
+            <input onkeyup="Total()" type="text" id="taxes" placeholder="Taxes">
+            <input onkeyup="Total()" type="text" id="ads" placeholder="Ads">
+            <input onkeyup="Total()" type="text" id="discount" placeholder="Discount">
+            <div class="total-section">
+                <p>Total:</p>
+                <input type="text" id="total" readonly>
+            </div>
+            <input type="text" id="count" placeholder="Count">
+            <input type="text" id="category" placeholder="Category">
+            <button id="createButton" onclick="createOrUpdate()">Create</button>
+            <input type="text" id="search" placeholder="Search by title">
+            <button onclick="search()">Search</button>
+        </section>
+    </div>
+    <div class="container">
+        <button onclick="afficher()">Afficher</button>
+        <table id="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Taxes</th>
+                    <th>Ads</th>
+                    <th>Discount</th>
+                    <th>Count</th>
+                    <th>Category</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let dataPro = [];
+
+        if (localStorage.getItem('yass') != null) {
+            try {
+                dataPro = JSON.parse(localStorage.getItem('yass'));
+                if (!Array.isArray(dataPro)) {
+                    dataPro = [];
+                }
+            } catch (e) {
+                dataPro = [];
+                console.error("Error parsing localStorage.yass:", e);
+            }
+        }
+
+        function Total() {
+            var price = parseFloat(document.getElementById("price").value) || 0;
+            var taxes = parseFloat(document.getElementById("taxes").value) || 0;
+            var ads = parseFloat(document.getElementById("ads").value) || 0;
+            var discount = parseFloat(document.getElementById("discount").value) || 0;
+            if (document.getElementById("price").value !== '') { 
+                var total = price + taxes + ads - discount;
+                document.getElementById("total").value = total.toFixed(2);
+            } else {
+                document.getElementById("total").value = '';
+            }
+        }
+
+        let currentIndex = -1;
+
+        function createOrUpdate() {
+            var title = document.getElementById("title").value;
+            var price = document.getElementById("price").value;
+            var taxes = document.getElementById("taxes").value;
+            var ads = document.getElementById("ads").value;
+            var discount = document.getElementById("discount").value;
+            var count = document.getElementById("count").value;
+            var category = document.getElementById("category").value;
+
+            if (title === '' || price === '' || category === '') {
+                alert("Title, Price, and Category are required fields.");
+                return;
+            }
+
+            var row = {
+                title: title,
+                price: price,
+                taxes: taxes,
+                ads: ads,
+                discount: discount,
+                count: count,
+                category: category
+            };
+
+            if (currentIndex === -1) {
+                dataPro.push(row);
+            } else {
+                dataPro[currentIndex] = row;
+                currentIndex = -1;
+                document.getElementById("createButton").innerText = "Create";
+            }
+
+            localStorage.setItem('yass', JSON.stringify(dataPro));
+            afficher();
+            Clear();
+        }
+
+        function afficher() {
+            let table = '';
+            for (let i = 0; i < dataPro.length; i++) {
+                table += `
+                    <tr>
+                        <td>${dataPro[i].title}</td>
+                        <td>${dataPro[i].price}</td>
+                        <td>${dataPro[i].taxes}</td>
+                        <td>${dataPro[i].ads}</td>
+                        <td>${dataPro[i].discount}</td>
+                        <td>${dataPro[i].count}</td>
+                        <td>${dataPro[i].category}</td>
+                        <td><button onclick="deleteRow(${i})">Delete</button></td>
+                        <td><button onclick="editRow(${i})">Edit</button></td>
+                    </tr>`;
+            }
+            document.getElementById("tbody").innerHTML = table;
+            console.log(table); // Add this line to debug the generated HTML
+            console.log(dataPro); // Add this line to debug the dataPro array
+        }
+
+        function deleteRow(index) {
+            dataPro.splice(index, 1);
+            localStorage.setItem('yass', JSON.stringify(dataPro));
+            afficher();
+        }
+
+        function editRow(index) {
+            currentIndex = index
+            let product = dataPro[index]
+            document.getElementById("title").value = product.title
+            document.getElementById("price").value = product.price
+            document.getElementById("taxes").value = product.taxes
+            document.getElementById("ads").value = product.ads
+            document.getElementById("dsicount").value = product.dsicount
+            document.getElementById("count").value = product.count
+            document.getElementById("category").value = product.category
+            document?getComputedStyle("createButton").innerHTML = "update"
+        }
+
+        function search() {
+            var searchTerm = document.getElementById("search").value.toLowerCase();
+            var filteredData = dataPro.filter(function(item) {
+                return item.title.toLowerCase().includes(searchTerm);
+            });
+            let table = '';
+            for (let i = 0; i < filteredData.length; i++) {
+                table += `
+                    <tr>
+                        <td>${filteredData[i].title}</td>
+                        <td>${filteredData[i].price}</td>
+                        <td>${filteredData[i].taxes}</td>
+                        <td>${filteredData[i].ads}</td>
+                        <td>${filteredData[i].discount}</td>
+                        <td>${filteredData[i].count}</td>
+                        <td>${filteredData[i].category}</td>
+                        <td><button onclick="deleteRow(${dataPro.indexOf(filteredData[i])})">Delete</button></td>
+                        <td><button onclick="editRow(${dataPro.indexOf(filteredData[i])})">Edit</button></td>
+                    </tr>`;
+            }
+            document.getElementById("tbody").innerHTML = table;
+        }
+
+        function Clear() {
+            document.getElementById("title").value = '';
+            document.getElementById("price").value = '';
+            document.getElementById("taxes").value = '';
+            document.getElementById("ads").value = '';
+            document.getElementById("discount").value = '';
+            document.getElementById("count").value = '';
+            document.getElementById("category").value = '';
+            document.getElementById("total").value = '';
+            document.getElementById("createButton").innerText = "Create";
+        }
+    </script>
+</body>
+</html>
